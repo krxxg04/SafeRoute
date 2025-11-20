@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Home as HomeIcon, Target, Rocket, Map, Navigation, Brain, Globe, Zap, MapPin, Search } from 'lucide-react';
+import { Home as HomeIcon, Target, Rocket, Map, Navigation, Brain, Globe, Zap, MapPin, Search, Building, Ruler, Clock, Car } from 'lucide-react';
 
 // Cargar el mapa dinámicamente para evitar errores de SSR
 const MapComponent = dynamic(() => import('./components/MapComponent'), {
@@ -151,7 +151,7 @@ export default function Home() {
                     type="text"
                     value={origin}
                     onChange={(e) => setOrigin(e.target.value)}
-                    placeholder="Ej: Jiron Mateo Pumacahua 1567"
+                    placeholder="Ej: Calle Principal 123, Lima"
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-slate-500 focus:ring-4 focus:ring-slate-100 transition-all duration-200 text-gray-700 placeholder-gray-400 bg-white shadow-sm"
                   />
                 </div>
@@ -165,7 +165,7 @@ export default function Home() {
                     type="text"
                     value={destination}
                     onChange={(e) => setDestination(e.target.value)}
-                    placeholder="Ej: Av Salaverry 2255"
+                    placeholder="Ej: Avenida Central 456, Lima"
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-slate-500 focus:ring-4 focus:ring-slate-100 transition-all duration-200 text-gray-700 placeholder-gray-400 bg-white shadow-sm"
                   />
                 </div>
@@ -276,7 +276,7 @@ export default function Home() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
                   <div className="flex items-center mb-3">
-                    <span className="text-3xl mr-3">📏</span>
+                    <Ruler className="w-8 h-8 mr-3 text-white" />
                     <div>
                       <p className="text-sm text-blue-200">Distancia Total</p>
                       <p className="text-3xl font-bold">{route.distance_km.toFixed(2)} <span className="text-lg">km</span></p>
@@ -286,7 +286,7 @@ export default function Home() {
 
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
                   <div className="flex items-center mb-3">
-                    <span className="text-3xl mr-3">⏱️</span>
+                    <Clock className="w-8 h-8 mr-3 text-white" />
                     <div>
                       <p className="text-sm text-blue-200">Tiempo Estimado</p>
                       <p className="text-3xl font-bold">{route.estimated_time_minutes.toFixed(1)} <span className="text-lg">min</span></p>
@@ -296,7 +296,7 @@ export default function Home() {
 
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
                   <div className="flex items-center mb-3">
-                    <span className="text-3xl mr-3">🚗</span>
+                    <Car className="w-8 h-8 mr-3 text-white" />
                     <div>
                       <p className="text-sm text-blue-200">Velocidad Promedio</p>
                       <p className="text-3xl font-bold">{route.speed_kmh} <span className="text-lg">km/h</span></p>
@@ -314,7 +314,7 @@ export default function Home() {
             <div className="bg-gradient-to-r from-[#1F4E79] to-[#2A6AA0] p-6">
               <div className="flex items-center">
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 mr-4 border border-white/20">
-                  <span className="text-2xl">🗺️</span>
+                  <Map className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-white">Mapa Interactivo</h2>
@@ -355,7 +355,7 @@ export default function Home() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 mr-4 border border-white/20">
-                    <span className="text-2xl">🛣️</span>
+                    <Map className="w-6 h-6 text-white" />
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-white">Calles Encontradas</h2>
@@ -373,7 +373,7 @@ export default function Home() {
                 {streets.slice(0, 50).map((street, index) => (
                   <div key={index} className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-xl border border-gray-200 hover:shadow-md transition-all duration-200 hover:scale-105">
                     <div className="flex items-start">
-                      <span className="text-2xl mr-3">🏢</span>
+                      <Building className="w-5 h-5 mr-3 text-gray-600" />
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-800 text-sm leading-tight">{street.name}</h3>
                         <p className="text-xs text-gray-500 mt-1 capitalize">{street.type}</p>

@@ -61,7 +61,19 @@ def get_streets():
             unique_streets.append(street)
             seen.add(street['name'])
 
-    return jsonify({'streets': unique_streets[:100]})  # Limitar a 100 para performance
+    # Filtrar por distrito (simular diferentes calles por distrito)
+    district_slices = {
+        'Lima': slice(0, 100),
+        'Jesús María': slice(100, 200),
+        'Miraflores': slice(200, 300),
+        'San Isidro': slice(300, 400),
+        'La Victoria': slice(400, 500),
+        'Lince': slice(500, 600)
+    }
+    slice_obj = district_slices.get(district, slice(0, 100))
+    filtered_streets = unique_streets[slice_obj]
+
+    return jsonify({'streets': filtered_streets})
 
 def calculate_route_with_timeout(graph, origin_node, dest_node, timeout_seconds=30):
     """Calcula ruta con timeout para evitar que se quede colgado"""
@@ -126,12 +138,11 @@ def calculate_route():
 
         # Obtener coordenadas de la ruta
         route_coords = []
-        for i, node in enumerate(route):
-            if i % 10 == 0:  # Reducir puntos para performance (cada 10 nodos)
-                route_coords.append({
-                    'lat': graph.nodes[node]['y'],
-                    'lon': graph.nodes[node]['x']
-                })
+        for node in route:
+            route_coords.append({
+                'lat': graph.nodes[node]['y'],
+                'lon': graph.nodes[node]['x']
+            })
 
         print(f"Ruta calculada: {len(route)} nodos, {route_length:.2f} metros")
 
@@ -154,29 +165,57 @@ def calculate_route():
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 def find_nearest_node(graph, address):
-    geolocator = Nominatim(user_agent="SafeRoute-App")
+    geolocator = Nominatim(user_agent="SafeRoute/1.0", timeout=10)
     
     try:
-        # Intentar geocodificar la dirección completa
-        location = geolocator.geocode(f"{address}, Lima, Peru")
-        print(f"Geocoding result for '{address}': {location}")
+        # Extraer código postal y determinar distrito para mejor precisión
+        postal_districts = {
+            '1': 'Lima Centro', '13': 'Jesús María', '22': 'Miraflores', 
+            '30': 'San Isidro', '15': 'La Victoria', '16': 'Lince'
+        }
+        district_hint = ""
+        postal_match = re.search(r'Lima\s+(\d+)', address, re.IGNORECASE)
+        if postal_match:
+            code = postal_match.group(1)
+            district_hint = postal_districts.get(code, "")
+            if district_hint:
+                district_hint = f", {district_hint}"
+        
+        # Mantener la dirección completa incluyendo códigos postales para mejor precisión
+        cleaned_address = address.strip()
+        
+        # Mejorar la precisión agregando más contexto geográfico
+        enhanced_address = f"{cleaned_address}{district_hint}, Lima Metropolitana, Provincia de Lima, Peru"
+        location = geolocator.geocode(enhanced_address)
+        print(f"Geocoding result for '{address}' -> '{enhanced_address}': {location}")
         
         if not location:
-            # Fallback: intentar con solo el nombre de la calle (sin números)
+            # Fallback 1: intentar con menos especificidad
+            fallback1 = f"{address}, Lima, Peru"
+            print(f"Intentando fallback 1: '{fallback1}'")
+            location = geolocator.geocode(fallback1)
+            print(f"Fallback 1 result: {location}")
+        
+        if not location:
+            # Fallback 2: intentar con solo el nombre de la calle (sin números)
             street_name = re.sub(r'\d+', '', address).strip()
-            if street_name != address:
-                print(f"Intentando fallback con nombre de calle: '{street_name}'")
-                location = geolocator.geocode(f"{street_name}, Lima, Peru")
-                print(f"Fallback geocoding result: {location}")
+            if street_name != address and street_name:
+                fallback2 = f"{street_name}, Lima, Peru"
+                print(f"Intentando fallback 2 con nombre de calle: '{fallback2}'")
+                location = geolocator.geocode(fallback2)
+                print(f"Fallback 2 result: {location}")
         
         if not location:
-            print(f"No se pudo geocodificar: {address}")
+            print(f"No se pudo geocodificar ninguna variante de: {address}")
             return None
         
         target_lat, target_lon = location.latitude, location.longitude
-        print(f"Coordenadas: {target_lat}, {target_lon}")
+        print(f"Coordenadas finales: {target_lat}, {target_lon} (precisión: {getattr(location, 'raw', {}).get('importance', 'desconocida')})")
         
-        # Encontrar el nodo más cercano en el grafo
+        # Validar que las coordenadas estén dentro de Lima Metropolitana
+        if not (-12.25 <= target_lat <= -11.85 and -77.20 <= target_lon <= -76.85):
+            print(f"Coordenadas fuera de Lima: {target_lat}, {target_lon} - rechazando")
+            location = None
         min_distance = float('inf')
         nearest_node = None
         
