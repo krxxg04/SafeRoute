@@ -89,18 +89,15 @@ const MapComponent: React.FC<MapComponentProps> = ({ streets, route }) => {
       // Popup informativo
       const popupContent = `
         <div style="font-family: system-ui, sans-serif; max-width: 280px; line-height: 1.4;">
-          <h3 style="margin: 0 0 10px 0; color: #1e40af; font-size: 16px; font-weight: 600;">🚑 Ruta SafeRoute</h3>
+          <h3 style="margin: 0 0 10px 0; color: #1e40af; font-size: 16px; font-weight: 600;">Ruta SafeRoute</h3>
           <div style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1;">
             <div style="display: flex; align-items: center; margin-bottom: 6px;">
-              <span style="font-size: 18px; margin-right: 8px;">📏</span>
               <span><strong>Distancia:</strong> ${route.distance_km.toFixed(2)} km</span>
             </div>
             <div style="display: flex; align-items: center; margin-bottom: 6px;">
-              <span style="font-size: 18px; margin-right: 8px;">⏱️</span>
               <span><strong>Tiempo estimado:</strong> ${route.estimated_time_minutes.toFixed(1)} min</span>
             </div>
             <div style="display: flex; align-items: center;">
-              <span style="font-size: 18px; margin-right: 8px;">🚗</span>
               <span><strong>Velocidad:</strong> ${route.speed_kmh} km/h</span>
             </div>
           </div>
