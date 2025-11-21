@@ -41,10 +41,7 @@ git clone https://github.com/krxxg04/SafeRoute.git
 ```bash
 cd backend
 python -m venv venv
-# En Windows:
 venv\Scripts\activate
-# En Linux/Mac:
-# source venv/bin/activate
 
 pip install -r requirements.txt
 python app.py
